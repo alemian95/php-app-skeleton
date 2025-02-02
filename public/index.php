@@ -9,6 +9,4 @@ $request = ServerRequestFactory::fromGlobals();
 
 $application = new Application();
 
-$response = $application->handle($request);
-
-echo $response->getBody();
+$application->handle($request);

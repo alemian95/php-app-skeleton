@@ -4,6 +4,7 @@ namespace Src\Core;
 
 use DI\ContainerBuilder;
 use Laminas\Diactoros\Response\HtmlResponse;
+use Laminas\Diactoros\Response\JsonResponse;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\Diactoros\Stream;
 use Psr\Container\ContainerInterface;
@@ -23,15 +24,24 @@ class Application
         $this->container = $this->buildApplicationComponents();
     }
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
+    public function handle(ServerRequestInterface $request)
     {
         /** @var ResponseFactoryInterface */
-        $response = $this->container->get('response');
+        $response = $this->container->get(ResponseFactoryInterface::class);
         $createdResponse = $response->createResponse();
 
         $response = new HtmlResponse("<pre>" . json_encode($request->getUri()->getScheme()) . "</pre>", $createdResponse->getStatusCode(), $createdResponse->getHeaders());
+        // $response = new JsonResponse([ 'foo' => 'bar' ], $createdResponse->getStatusCode(), $createdResponse->getHeaders());
 
-        return $response;
+        $this->sendResponse($response);
+    }
+
+    private function sendResponse(ResponseInterface $response) {
+        foreach ($response->getHeaders() as $key => $values) {
+            $value = implode(',', $values);
+            header("$key: $value");
+        }
+        echo $response->getBody();
     }
 
 
@@ -40,7 +50,7 @@ class Application
         $builder = new ContainerBuilder();
 
         $builder->addDefinitions([
-            'response' => create(ResponseFactory::class)
+            ResponseFactoryInterface::class => create(ResponseFactory::class)
         ]);
 
         return $builder->build();
