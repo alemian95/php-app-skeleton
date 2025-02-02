@@ -2,29 +2,13 @@
 
 namespace Src\Core;
 
-use DI\ContainerBuilder;
-use Doctrine\DBAL\Configuration;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\DriverManager;
-use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\ORMSetup;
-use Laminas\Diactoros\Response\HtmlResponse;
-use Laminas\Diactoros\ResponseFactory;
-use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
-use function DI\create;
-
 class Application
 {
 
     public string $appPath;
     public string $srcPath;
 
-    public ContainerInterface $container;
+    public \Psr\Container\ContainerInterface $container;
 
     public function __construct(string $appPath)
     {
@@ -33,22 +17,22 @@ class Application
         $this->container = $this->buildApplicationComponents();
     }
 
-    public function handle(ServerRequestInterface $request)
+    public function handle(\Psr\Http\Message\ServerRequestInterface $request)
     {
-        /** @var ResponseFactoryInterface */
-        $response = $this->container->get(ResponseFactoryInterface::class);
+        /** @var \Psr\Http\Message\ResponseFactoryInterface */
+        $response = $this->container->get(\Psr\Http\Message\ResponseFactoryInterface::class);
         $createdResponse = $response->createResponse();
 
-        /** @var EntityManagerInterface */
-        $entityManager = $this->container->get(EntityManagerInterface::class);
+        /** @var \Doctrine\ORM\EntityManagerInterface */
+        $entityManager = $this->container->get(\Doctrine\ORM\EntityManagerInterface::class);
 
-        $response = new HtmlResponse("<pre>" . json_encode($request->getUri()->getScheme()) . "</pre>", $createdResponse->getStatusCode(), $createdResponse->getHeaders());
-        // $response = new JsonResponse([ 'foo' => 'bar' ], $createdResponse->getStatusCode(), $createdResponse->getHeaders());
+        $response = new \Laminas\Diactoros\Response\HtmlResponse("<pre>" . json_encode($request->getUri()->getScheme()) . "</pre>", $createdResponse->getStatusCode(), $createdResponse->getHeaders());
+        // $response = new \Laminas\Diactoros\Response\JsonResponse([ 'foo' => 'bar' ], $createdResponse->getStatusCode(), $createdResponse->getHeaders());
 
         $this->sendResponse($response);
     }
 
-    private function sendResponse(ResponseInterface $response) {
+    private function sendResponse(\Psr\Http\Message\ResponseInterface $response) {
         http_response_code($response->getStatusCode());
         foreach ($response->getHeaders() as $key => $values) {
             $value = implode(',', $values);
@@ -58,18 +42,20 @@ class Application
     }
 
 
-    private function buildApplicationComponents(): ContainerInterface
+    private function buildApplicationComponents(): \Psr\Container\ContainerInterface
     {
-        $builder = new ContainerBuilder();
+        $builder = new \DI\ContainerBuilder();
 
-        /** @var Configuration */ 
-        $config = ORMSetup::createAttributeMetadataConfiguration(
+        $builder->useAutowiring(true);
+
+        /** @var \Doctrine\DBAL\Configuration */ 
+        $config = \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
             paths: [ $this->srcPath . "/Entities" ],
             isDevMode: true,
         );
 
-        /** @var Connection */
-        $connection = DriverManager::getConnection([
+        /** @var \Doctrine\DBAL\Connection */
+        $connection = \Doctrine\DBAL\DriverManager::getConnection([
             'driver' => 'pdo_mysql',
             'user'     => getenv('DB_USER'),
             'password' => getenv('DB_PASSWORD'),
@@ -79,11 +65,13 @@ class Application
         ], $config);
 
         $builder->addDefinitions([
-            ResponseFactoryInterface::class => create(ResponseFactory::class),
-            Connection::class => $connection,
-            EntityManagerInterface::class => function () use ($connection, $config) {
-                return new EntityManager($connection, $config);
-            }
+            \Psr\Http\Message\ResponseFactoryInterface::class => \DI\create(\Laminas\Diactoros\ResponseFactory::class),
+            \Doctrine\DBAL\Connection::class => $connection,
+            \Doctrine\DBAL\Configuration::class => \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
+                paths: [ $this->srcPath . "/Entities" ],
+                isDevMode: true,
+            ),
+            \Doctrine\ORM\EntityManagerInterface::class => new \Doctrine\ORM\EntityManager($connection, $config)
         ]);
 
         return $builder->build();
