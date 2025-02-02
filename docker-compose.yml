@@ -9,6 +9,8 @@ services:
     env_file:
       - .env
     user: 1000:www-data
+    depends_on:
+      - database
   database:
     image: mariadb:11.6
     ports:
@@ -21,13 +23,21 @@ services:
       - MARIADB_PASSWORD=${DB_PASSWORD}
       - MARIADB_CHARSET=${DB_CHARSET}
       - MARIADB_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-    command: ['mariadbd', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    command: ['mariadbd', '--character-set-server=${DB_CHARSET}', '--collation-server=${DB_CHARSET}_unicode_ci']
+    volumes:
+      - app_db:/var/lib/mysql
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:5
     environment:
       PMA_HOST: ${DB_HOST}
       PMA_PORT: ${DB_PORT}
       PMA_USER: ${DB_USER}
-      PMS_PASSWORD: ${DB_PASSWORD}
+      PMA_PASSWORD: ${DB_PASSWORD}
     ports:
       - ${PHPMYADMIN_PORT}:80
+    depends_on:
+      - database
+
+volumes:
+  app_db:
+    driver: local

@@ -7,6 +7,6 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 $request = ServerRequestFactory::fromGlobals();
 
-$application = new Application();
+$application = new Application(dirname(__DIR__) . "/app");
 
 $application->handle($request);
