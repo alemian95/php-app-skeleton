@@ -37,6 +37,7 @@ class Application
     }
 
     private function sendResponse(ResponseInterface $response) {
+        http_response_code($response->getStatusCode());
         foreach ($response->getHeaders() as $key => $values) {
             $value = implode(',', $values);
             header("$key: $value");
