@@ -2,8 +2,6 @@
 
 namespace Src\Core;
 
-use Doctrine\ORM\EntityManager;
-
 class Application
 {
 

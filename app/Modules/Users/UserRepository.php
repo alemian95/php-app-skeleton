@@ -2,8 +2,6 @@
 
 namespace App\Modules\Users;
 
-use User;
-
 class UserRepository extends \Src\Components\Repository
 {
 
