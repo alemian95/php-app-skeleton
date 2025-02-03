@@ -2,6 +2,8 @@
 
 namespace Src\Core;
 
+use Doctrine\ORM\EntityManager;
+
 class Application
 {
 
@@ -22,9 +24,6 @@ class Application
         /** @var \Psr\Http\Message\ResponseFactoryInterface */
         $response = $this->container->get(\Psr\Http\Message\ResponseFactoryInterface::class);
         $createdResponse = $response->createResponse();
-
-        /** @var \Doctrine\ORM\EntityManagerInterface */
-        $entityManager = $this->container->get(\Doctrine\ORM\EntityManagerInterface::class);
 
         $response = new \Laminas\Diactoros\Response\HtmlResponse("<pre>" . json_encode($request->getUri()->getScheme()) . "</pre>", $createdResponse->getStatusCode(), $createdResponse->getHeaders());
         // $response = new \Laminas\Diactoros\Response\JsonResponse([ 'foo' => 'bar' ], $createdResponse->getStatusCode(), $createdResponse->getHeaders());
@@ -71,7 +70,10 @@ class Application
                 paths: [ $this->srcPath . "/Entities" ],
                 isDevMode: true,
             ),
-            \Doctrine\ORM\EntityManagerInterface::class => new \Doctrine\ORM\EntityManager($connection, $config)
+            \Doctrine\ORM\EntityManagerInterface::class => function () use ($connection, $config) {
+                return new \Doctrine\ORM\EntityManager($connection, $config);
+            },
+            \App\Modules\Users\UserRepository::class => \DI\autowire(\App\Modules\Users\UserRepository::class)
         ]);
 
         return $builder->build();

@@ -1,19 +1,17 @@
 <?php
 
-use Doctrine\ORM\Mapping\Column;
-use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\Table;
+namespace App\Entities;
 
-#[Entity]
-#[Table(name: 'users')]
+use Doctrine\ORM\Mapping\Column;
+
+#[\Doctrine\ORM\Mapping\Entity]
+#[\Doctrine\ORM\Mapping\Table(name: 'users')]
 class User
 {
 
-    #[Id]
+    #[\Doctrine\ORM\Mapping\Id]
     #[Column(name: 'id', type: 'integer')]
-    #[GeneratedValue]
+    #[\Doctrine\ORM\Mapping\GeneratedValue]
     private int|null $id;
 
     #[Column(name: 'name', type: 'string', length: 255)]
