@@ -10,10 +10,16 @@ class Application
 
     private \Psr\Container\ContainerInterface $container;
 
-    public function __construct(string $appPath)
+    private array $di;
+
+    public function __construct(
+        string $appPath,
+        array $di
+    )
     {
         $this->appPath = $appPath;
         $this->srcPath = dirname(__DIR__);
+        $this->di = $di;
         $this->container = $this->buildApplicationComponents();
     }
 
@@ -71,7 +77,7 @@ class Application
             \Doctrine\ORM\EntityManagerInterface::class => function () use ($connection, $config) {
                 return new \Doctrine\ORM\EntityManager($connection, $config);
             },
-            \App\Modules\Users\UserRepository::class => \DI\autowire(\App\Modules\Users\UserRepository::class)
+            ...$this->di
         ]);
 
         return $builder->build();
