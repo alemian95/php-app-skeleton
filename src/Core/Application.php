@@ -2,6 +2,9 @@
 
 namespace Src\Core;
 
+use App\Modules\Users\UserService;
+use Src\Components\Facade;
+
 class Application
 {
 
@@ -21,6 +24,8 @@ class Application
         $this->srcPath = dirname(__DIR__);
         $this->di = $di;
         $this->container = $this->buildApplicationComponents();
+
+        Facade::setContainer($this->container);
     }
 
     public function handle(\Psr\Http\Message\ServerRequestInterface $request)
