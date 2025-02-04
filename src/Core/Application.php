@@ -5,10 +5,10 @@ namespace Src\Core;
 class Application
 {
 
-    public string $appPath;
-    public string $srcPath;
+    private string $appPath;
+    private string $srcPath;
 
-    public \Psr\Container\ContainerInterface $container;
+    private \Psr\Container\ContainerInterface $container;
 
     public function __construct(string $appPath)
     {
