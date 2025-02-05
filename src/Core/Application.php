@@ -56,7 +56,7 @@ class Application
 
         $builder->useAutowiring(true);
 
-        /** @var \Doctrine\DBAL\Configuration */ 
+        /** @var \Doctrine\ORM\Configuration */ 
         $config = \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
             paths: [ $this->srcPath . "/Entities" ],
             isDevMode: true,

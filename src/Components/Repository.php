@@ -40,8 +40,6 @@ class Repository
 
     /**
      * @return \Doctrine\ORM\EntityRepository<T>
-     * 
-     * @template T of object
      */
     public function getRepository(): \Doctrine\ORM\EntityRepository
     {
@@ -50,8 +48,6 @@ class Repository
 
     /**
      * @return array<T>
-     * 
-     * @template T of object
      */
     public function all(): array
     {
