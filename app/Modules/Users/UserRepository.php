@@ -16,4 +16,9 @@ class UserRepository extends \Src\Components\Repository
         parent::__construct($entityManager, self::ENTITY);
     }
 
+    public function validateEmail(string $email): bool
+    {
+        return true;
+    }
+
 }

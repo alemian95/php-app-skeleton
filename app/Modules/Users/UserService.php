@@ -6,6 +6,10 @@ use Src\Components\Facade;
 
 /**
  * @method static array<User> all()
+ * 
+ * 
+ * @method static bool validateEmail(string $email)
+ * 
  */
 class UserService extends Facade
 {
