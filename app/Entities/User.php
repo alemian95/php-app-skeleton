@@ -13,13 +13,13 @@ class User
     #[\Doctrine\ORM\Mapping\Id]
     #[Column(name: 'id', type: 'integer')]
     #[\Doctrine\ORM\Mapping\GeneratedValue]
-    private int|null $id;
+    public int|null $id;
 
     #[Column(name: 'name', type: 'string', length: 255)]
-    private $name;
+    public $name;
 
     #[Column(name: 'email', type: 'string', length: 255, unique: true)]
-    private $email;
+    public $email;
 
     #[Column(name: 'password', type: 'string', length: 255, unique: true)]
     private $password;
