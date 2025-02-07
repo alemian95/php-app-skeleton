@@ -6,7 +6,11 @@ use Closure;
 use DI\Definition\Helper\AutowireDefinitionHelper;
 use DI\Definition\Helper\CreateDefinitionHelper;
 use Laminas\Diactoros\Response\EmptyResponse;
+use Laminas\Diactoros\ResponseFactory;
+use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
+use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Src\Components\Facade;
+use Src\Middlewares\TestMiddleware;
 
 class Application
 {
@@ -57,9 +61,34 @@ class Application
         // $response = new \Laminas\Diactoros\Response\HtmlResponse("<pre>" . json_encode($request->getUri()->getScheme()) . "</pre>", $createdResponse->getStatusCode(), $createdResponse->getHeaders());
         // // $response = new \Laminas\Diactoros\Response\JsonResponse([ 'foo' => 'bar' ], $createdResponse->getStatusCode(), $createdResponse->getHeaders());
 
-        $response = $this->dispatch($request);
+        /** @var \Laminas\Stratigility\IterableMiddlewarePipeInterface */
+        $pipeline = $this->container->get(\Laminas\Stratigility\IterableMiddlewarePipeInterface::class);
 
-        $this->sendResponse($response);
+        $pipeline->pipe(new TestMiddleware());
+        $pipeline->pipe(\Laminas\Stratigility\middleware(function ($request, $handler) {
+            return $this->dispatch($request);
+        }));
+
+        $server = new RequestHandlerRunner(
+            $pipeline,
+            new SapiEmitter(),
+            static function () use ($request) {
+                return $request;
+            },
+            static function (\Throwable $e) {
+                $response = (new ResponseFactory())->createResponse(500);
+                $response->getBody()->write(sprintf(
+                    'An error occurred: %s',
+                    $e->getMessage
+                ));
+                return $response;
+            }
+        );
+        $server->run();
+
+        // $response = $this->dispatch($request);
+
+        // $this->sendResponse($response);
     }
 
     private function dispatch(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
@@ -68,12 +97,6 @@ class Application
 
         /** @var int */
         $found = $route[0];
-
-        /** @var array<string> */
-        $handler = $route[1];
-
-        /** @var array<string, string> */
-        $args = $route[2];
 
         switch ($found) {
             
@@ -84,6 +107,13 @@ class Application
                 return new EmptyResponse(405);
 
             case \FastRoute\Dispatcher::FOUND:
+
+                /** @var array<string> */
+                $handler = $route[1];
+
+                /** @var array<string, string> */
+                $args = $route[2];
+
                 [ $controllerClass, $action ] = $handler;
                 $instance = $this->container->get($controllerClass);
 
@@ -129,8 +159,10 @@ class Application
             'port'     => getenv('DB_PORT'),
         ], $config);
 
+
         $builder->addDefinitions([
             'appPath' => $this->appPath,
+            \Laminas\Stratigility\IterableMiddlewarePipeInterface::class => \Di\create(\Laminas\Stratigility\MiddlewarePipe::class),
             \Psr\Http\Message\ResponseFactoryInterface::class => \DI\create(\Laminas\Diactoros\ResponseFactory::class),
             \Doctrine\DBAL\Connection::class => $connection,
             \Doctrine\DBAL\Configuration::class => \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
