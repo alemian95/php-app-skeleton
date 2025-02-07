@@ -9,7 +9,9 @@ use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\ResponseFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
+use Laminas\Stratigility\Middleware\PathMiddlewareDecorator;
 use Src\Components\Facade;
+use Src\Middlewares\ApiMiddleware;
 use Src\Middlewares\TestMiddleware;
 
 class Application
@@ -63,8 +65,11 @@ class Application
 
         /** @var \Laminas\Stratigility\IterableMiddlewarePipeInterface */
         $pipeline = $this->container->get(\Laminas\Stratigility\IterableMiddlewarePipeInterface::class);
-
         $pipeline->pipe(new TestMiddleware());
+
+        $api = new \Laminas\Stratigility\MiddlewarePipe();
+        $api->pipe(new ApiMiddleware());
+        $pipeline->pipe(new PathMiddlewareDecorator('/api', $api));
         $pipeline->pipe(\Laminas\Stratigility\middleware(function ($request, $handler) {
             return $this->dispatch($request);
         }));
@@ -85,14 +90,11 @@ class Application
             }
         );
         $server->run();
-
-        // $response = $this->dispatch($request);
-
-        // $this->sendResponse($response);
     }
 
     private function dispatch(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
     {
+
         $route = $this->routeDispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());
 
         /** @var int */
@@ -126,15 +128,15 @@ class Application
         return new EmptyResponse(500);
     }
 
-    private function sendResponse(\Psr\Http\Message\ResponseInterface $response): void
-    {
-        http_response_code($response->getStatusCode());
-        foreach ($response->getHeaders() as $key => $values) {
-            $value = implode(',', $values);
-            header("$key: $value");
-        }
-        echo $response->getBody();
-    }
+    // private function sendResponse(\Psr\Http\Message\ResponseInterface $response): void
+    // {
+    //     http_response_code($response->getStatusCode());
+    //     foreach ($response->getHeaders() as $key => $values) {
+    //         $value = implode(',', $values);
+    //         header("$key: $value");
+    //     }
+    //     echo $response->getBody();
+    // }
 
 
     private function buildApplicationComponents(): \Psr\Container\ContainerInterface
@@ -162,7 +164,6 @@ class Application
 
         $builder->addDefinitions([
             'appPath' => $this->appPath,
-            \Laminas\Stratigility\IterableMiddlewarePipeInterface::class => \Di\create(\Laminas\Stratigility\MiddlewarePipe::class),
             \Psr\Http\Message\ResponseFactoryInterface::class => \DI\create(\Laminas\Diactoros\ResponseFactory::class),
             \Doctrine\DBAL\Connection::class => $connection,
             \Doctrine\DBAL\Configuration::class => \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
@@ -172,7 +173,8 @@ class Application
             \Doctrine\ORM\EntityManagerInterface::class => function () use ($connection, $config) {
                 return new \Doctrine\ORM\EntityManager($connection, $config);
             },
-            ...$this->di
+            ...$this->di,
+            \Laminas\Stratigility\IterableMiddlewarePipeInterface::class => \Di\create(\Laminas\Stratigility\MiddlewarePipe::class),
         ]);
 
         return $builder->build();
