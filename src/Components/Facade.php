@@ -10,14 +10,16 @@ abstract class Facade {
     /**
      * Set the dependency injection container.
      */
-    public static function setContainer(\Psr\Container\ContainerInterface $container): void {
+    public static function setContainer(\Psr\Container\ContainerInterface $container): void
+    {
         self::$container = $container;
     }
 
     /**
      * Retrieve the underlying instance from the container.
      */
-    protected static function getInstance() {
+    protected static function getInstance(): mixed
+    {
         if (!isset(self::$container)) {
             throw new \RuntimeException('Container not set in Facade.');
         }
@@ -32,7 +34,8 @@ abstract class Facade {
      *
      * @return mixed
      */
-    public static function __callStatic(string $method, array $args) {
+    public static function __callStatic(string $method, array $args): mixed
+    {
         $instance = static::getInstance();
         if (!method_exists($instance, $method)) {
             throw new \BadMethodCallException("Method {$method} does not exist in " . get_class($instance));

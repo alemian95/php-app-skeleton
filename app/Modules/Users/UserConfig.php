@@ -22,7 +22,7 @@ class UserConfig
      */
     public static function router(): Closure
     {
-        return function (RouteCollector $r) {
+        return function (RouteCollector $r): void {
             $r->addRoute('GET', '/api/users', [ UserController::class, 'all' ]);
         };
     }
