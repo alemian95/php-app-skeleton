@@ -4,6 +4,7 @@ namespace App\Modules\Users;
 
 use App\Entities\User;
 use Doctrine\ORM\EntityRepository;
+use Laminas\Diactoros\Response\EmptyResponse;
 use Laminas\Diactoros\Response\JsonResponse;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,6 +13,8 @@ class UserController
 {
 
     private UserRepository $repository;
+
+    /** @var EntityRepository<User> */
     private EntityRepository $em;
 
     public function __construct(UserRepository $repository)
@@ -28,6 +31,11 @@ class UserController
     public function updatePassword(ServerRequestInterface $request, int $id): ResponseInterface
     {
         $user = $this->em->find($id);
+
+        if (! $user) {
+            return new EmptyResponse(404);
+        }
+
         $user->setPassword($request->getParsedBody()['password']);
         return new JsonResponse($user);
     }
