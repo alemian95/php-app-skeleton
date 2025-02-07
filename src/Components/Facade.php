@@ -30,7 +30,7 @@ abstract class Facade {
      * Handle dynamic, static calls to the underlying instance.
      *
      * @param string $method
-     * @param array  $args
+     * @param array<mixed>  $args
      *
      * @return mixed
      */

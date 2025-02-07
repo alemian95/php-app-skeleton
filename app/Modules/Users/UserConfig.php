@@ -8,6 +8,9 @@ use FastRoute\RouteCollector;
 class UserConfig
 {
 
+    /**
+     * @return array<class-string, \DI\Definition\Helper\AutowireDefinitionHelper|\DI\Definition\Helper\CreateDefinitionHelper>
+     */
     public static function di(): array
     {
         return [
@@ -18,7 +21,7 @@ class UserConfig
 
     /**
      * 
-     * @return Closure(FastRoute\RouteCollector): void
+     * @return Closure(\FastRoute\RouteCollector): void
      */
     public static function router(): Closure
     {

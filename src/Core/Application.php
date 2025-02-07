@@ -84,7 +84,7 @@ class Application
                 $response = (new ResponseFactory())->createResponse(500);
                 $response->getBody()->write(sprintf(
                     'An error occurred: %s',
-                    $e->getMessage
+                    $e->getMessage()
                 ));
                 return $response;
             }
@@ -154,11 +154,11 @@ class Application
         /** @var \Doctrine\DBAL\Connection */
         $connection = \Doctrine\DBAL\DriverManager::getConnection([
             'driver' => 'pdo_mysql',
-            'user'     => getenv('DB_USER'),
-            'password' => getenv('DB_PASSWORD'),
-            'dbname'   => getenv('DB_NAME'),
-            'host'     => getenv('DB_HOST'),
-            'port'     => getenv('DB_PORT'),
+            'user'     => (string) getenv('DB_USER'),
+            'password' => (string) getenv('DB_PASSWORD'),
+            'dbname'   => (string) getenv('DB_NAME'),
+            'host'     => (string) getenv('DB_HOST'),
+            'port'     => (int) getenv('DB_PORT'),
         ], $config);
 
 
