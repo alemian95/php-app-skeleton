@@ -33,6 +33,7 @@ class User
     public function setPassword(string $newPassword): void
     {
         $this->password = password_hash($newPassword, PASSWORD_BCRYPT);
+        UserService::save($this);
     }
 
     public function checkPassword(string $password): bool

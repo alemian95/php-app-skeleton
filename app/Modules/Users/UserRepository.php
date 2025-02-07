@@ -2,6 +2,8 @@
 
 namespace App\Modules\Users;
 
+use App\Entities\User;
+
 /**
  * @extends \Src\Components\Repository<\App\Entities\User>
  */
@@ -14,6 +16,12 @@ class UserRepository extends \Src\Components\Repository
     public function __construct(\Doctrine\ORM\EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager, self::ENTITY);
+    }
+
+    public function save(User $user): void
+    {
+        $this->em->persist($user);
+        $this->em->flush();
     }
 
     public function validateEmail(string $email): bool

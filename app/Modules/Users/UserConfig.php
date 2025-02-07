@@ -27,6 +27,7 @@ class UserConfig
     {
         return function (RouteCollector $r): void {
             $r->addRoute('GET', '/api/users', [ UserController::class, 'all' ]);
+            $r->addRoute('POST', '/api/users/{id:\d+}/password', [ UserController::class, 'updatePassword' ]);
         };
     }
 }
