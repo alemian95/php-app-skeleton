@@ -1,6 +1,6 @@
 <?php
 
-namespace Src\Components;
+namespace Src\Entities;
 
 /**
  * @template T of object

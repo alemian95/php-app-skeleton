@@ -28,6 +28,25 @@ class UserController
         return new JsonResponse($this->repository->all());
     }
 
+    public function create(ServerRequestInterface $request): ResponseInterface
+    {
+        $user = new User();
+        $user->name = $request->getParsedBody()['name'];
+        $user->email = $request->getParsedBody()['email'];
+        $user->setPassword($request->getParsedBody()['password']);
+        $user->save();
+        return new JsonResponse($user, 201);
+    }
+
+    public function read(ServerRequestInterface $request, int $id): ResponseInterface
+    {
+        $user = $this->em->find($id);
+        if (! $user) {
+            return new EmptyResponse(404);
+        }
+        return new JsonResponse($user);
+    }
+
     public function updatePassword(ServerRequestInterface $request, int $id): ResponseInterface
     {
         $user = $this->em->find($id);

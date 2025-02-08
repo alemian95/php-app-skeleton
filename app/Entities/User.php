@@ -4,17 +4,13 @@ namespace App\Entities;
 
 use App\Modules\Users\UserService;
 use Doctrine\ORM\Mapping\Column;
+use Src\Entities\Entity;
 use Src\Facades\EntityManager;
 
 #[\Doctrine\ORM\Mapping\Entity]
 #[\Doctrine\ORM\Mapping\Table(name: 'users')]
-class User
+class User extends Entity
 {
-
-    #[\Doctrine\ORM\Mapping\Id]
-    #[Column(name: 'id', type: 'integer')]
-    #[\Doctrine\ORM\Mapping\GeneratedValue]
-    public int|null $id;
 
     #[Column(name: 'name', type: 'string', length: 255)]
     public string $name;
@@ -22,7 +18,7 @@ class User
     #[Column(name: 'email', type: 'string', length: 255, unique: true)]
     public string $email;
 
-    #[Column(name: 'password', type: 'string', length: 255, unique: true)]
+    #[Column(name: 'password', type: 'string', length: 255)]
     private string $password;
 
 
@@ -34,7 +30,6 @@ class User
     public function setPassword(string $newPassword): void
     {
         $this->password = password_hash($newPassword, PASSWORD_BCRYPT);
-        $this->save();
     }
 
     public function checkPassword(string $password): bool
@@ -42,9 +37,4 @@ class User
         return password_verify($password, $this->password);
     }
 
-    public function save(): void
-    {
-        EntityManager::persist($this);
-        EntityManager::flush();
-    }
 }

@@ -5,9 +5,9 @@ namespace App\Modules\Users;
 use App\Entities\User;
 
 /**
- * @extends \Src\Components\Repository<\App\Entities\User>
+ * @extends \Src\Entities\Repository<\App\Entities\User>
  */
-class UserRepository extends \Src\Components\Repository
+class UserRepository extends \Src\Entities\Repository
 {
 
     /** @var class-string<\App\Entities\User> */
