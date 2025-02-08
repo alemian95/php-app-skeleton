@@ -5,12 +5,15 @@ namespace App\Entities;
 use App\Modules\Users\UserService;
 use Doctrine\ORM\Mapping\Column;
 use Src\Entities\Entity;
-use Src\Facades\EntityManager;
+use Src\Entities\Traits\HasId;
+use Src\Entities\Traits\HasTimestamps;
 
 #[\Doctrine\ORM\Mapping\Entity]
 #[\Doctrine\ORM\Mapping\Table(name: 'users')]
 class User extends Entity
 {
+
+    use HasId, HasTimestamps;
 
     #[Column(name: 'name', type: 'string', length: 255)]
     public string $name;

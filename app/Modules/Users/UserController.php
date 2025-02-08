@@ -56,6 +56,7 @@ class UserController
         }
 
         $user->setPassword($request->getParsedBody()['password']);
+        $user->save();
         return new JsonResponse($user);
     }
 }
