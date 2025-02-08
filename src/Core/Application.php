@@ -66,30 +66,13 @@ class Application
         /** @var \Laminas\Stratigility\IterableMiddlewarePipeInterface */
         $pipeline = $this->container->get(\Laminas\Stratigility\IterableMiddlewarePipeInterface::class);
         $pipeline->pipe(new TestMiddleware());
-
-        $api = new \Laminas\Stratigility\MiddlewarePipe();
-        $api->pipe(new ApiMiddleware());
-        $pipeline->pipe(new PathMiddlewareDecorator('/api', $api));
-        $pipeline->pipe(\Laminas\Stratigility\middleware(function ($request, $handler) {
+        $pipeline->pipe(new PathMiddlewareDecorator('/api', $this->buildApiMiddlewarePipe()));
+        $pipeline->pipe(\Laminas\Stratigility\middleware(function (\Psr\Http\Message\ServerRequestInterface $request, \Laminas\Stratigility\Next $handler) {
             return $this->dispatch($request);
         }));
 
-        $server = new RequestHandlerRunner(
-            $pipeline,
-            new SapiEmitter(),
-            static function () use ($request) {
-                return $request;
-            },
-            static function (\Throwable $e) {
-                $response = (new ResponseFactory())->createResponse(500);
-                $response->getBody()->write(sprintf(
-                    'An error occurred: %s',
-                    $e->getMessage()
-                ));
-                return $response;
-            }
-        );
-        $server->run();
+        
+        $this->buildServerRunner($request, $pipeline)->run();
     }
 
     private function dispatch(\Psr\Http\Message\ServerRequestInterface $request): \Psr\Http\Message\ResponseInterface
@@ -189,6 +172,32 @@ class Application
             }
 
         });
+    }
+
+    private function buildApiMiddlewarePipe(): \Laminas\Stratigility\MiddlewarePipe
+    {
+        $apiMiddlewarePipe = new \Laminas\Stratigility\MiddlewarePipe();
+        $apiMiddlewarePipe->pipe(new ApiMiddleware());
+        return $apiMiddlewarePipe;
+    }
+
+    private function buildServerRunner(\Psr\Http\Message\ServerRequestInterface $request, \Laminas\Stratigility\IterableMiddlewarePipeInterface $pipeline): \Laminas\HttpHandlerRunner\RequestHandlerRunnerInterface
+    {
+        return new RequestHandlerRunner(
+            $pipeline,
+            new SapiEmitter(),
+            static function () use ($request) {
+                return $request;
+            },
+            static function (\Throwable $e) {
+                $response = (new ResponseFactory())->createResponse(500);
+                $response->getBody()->write(sprintf(
+                    'An error occurred: %s',
+                    $e->getMessage()
+                ));
+                return $response;
+            }
+        );
     }
 
 
