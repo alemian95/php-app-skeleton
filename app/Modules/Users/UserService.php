@@ -11,7 +11,7 @@ use App\Entities\User;
  * @method static bool validateEmail(string $email)
  * 
  */
-class UserService extends \Src\Components\Facade
+class UserService extends \Src\Facades\Facade
 {
     protected static function getFacadeAccessor(): string {
         return UserRepository::class;

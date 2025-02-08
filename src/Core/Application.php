@@ -10,7 +10,7 @@ use Laminas\Diactoros\ResponseFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\RequestHandlerRunner;
 use Laminas\Stratigility\Middleware\PathMiddlewareDecorator;
-use Src\Components\Facade;
+use Src\Facades\Facade;
 use Src\Middlewares\ApiMiddleware;
 use Src\Middlewares\TestMiddleware;
 

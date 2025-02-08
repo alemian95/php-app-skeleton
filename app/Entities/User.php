@@ -4,6 +4,7 @@ namespace App\Entities;
 
 use App\Modules\Users\UserService;
 use Doctrine\ORM\Mapping\Column;
+use Src\Facades\EntityManager;
 
 #[\Doctrine\ORM\Mapping\Entity]
 #[\Doctrine\ORM\Mapping\Table(name: 'users')]
@@ -33,11 +34,17 @@ class User
     public function setPassword(string $newPassword): void
     {
         $this->password = password_hash($newPassword, PASSWORD_BCRYPT);
-        UserService::save($this);
+        $this->save();
     }
 
     public function checkPassword(string $password): bool
     {
         return password_verify($password, $this->password);
+    }
+
+    public function save(): void
+    {
+        EntityManager::persist($this);
+        EntityManager::flush();
     }
 }
