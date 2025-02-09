@@ -24,12 +24,6 @@ class User extends Entity
     #[Column(name: 'password', type: 'string', length: 255)]
     private string $password;
 
-
-    public function validateEmail(): bool
-    {
-        return UserService::validateEmail($this->email);
-    }
-
     public function setPassword(string $newPassword): void
     {
         $this->password = password_hash($newPassword, PASSWORD_BCRYPT);

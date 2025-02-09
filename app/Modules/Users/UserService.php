@@ -8,7 +8,6 @@ use App\Entities\User;
  * @method static array<User> all()
  * 
  * @method static void save(User $user)
- * @method static bool validateEmail(string $email)
  * 
  */
 class UserService extends \Src\Facades\Facade

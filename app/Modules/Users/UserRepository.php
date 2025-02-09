@@ -24,9 +24,4 @@ class UserRepository extends \Src\Entities\Repository
         $this->em->flush();
     }
 
-    public function validateEmail(string $email): bool
-    {
-        return true;
-    }
-
 }
