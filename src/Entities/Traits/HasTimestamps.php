@@ -18,7 +18,7 @@ trait HasTimestamps
 
     public function beforeSave(): Closure
     {
-        return function () {
+        return function(): void {
             if (empty($this->created_at)) {
                 $this->created_at = new DateTime();
             }

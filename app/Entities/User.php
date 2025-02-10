@@ -26,9 +26,8 @@ class User extends Entity
     #[Column(name: 'password', type: 'string', length: 255)]
     private string $password;
 
-    public function __construct()
-    {
-        $this->beforeSave = [
+    protected function beforeSave(): array {
+        return [
             $this->timestampsBeforeSave()
         ];
     }

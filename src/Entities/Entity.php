@@ -5,16 +5,16 @@ namespace Src\Entities;
 use Closure;
 use Src\Facades\EntityManager;
 
-class Entity
+abstract class Entity
 {
 
     /** @var array<Closure> */
-    protected array $beforeSave;
+    protected abstract function beforeSave(): array;
 
     public function save(): void
     {
 
-        foreach ($this->beforeSave as $beforeSaveHook) {
+        foreach ($this->beforeSave() as $beforeSaveHook) {
             $beforeSaveHook();
         }
 

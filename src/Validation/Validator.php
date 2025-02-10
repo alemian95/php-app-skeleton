@@ -11,5 +11,8 @@ abstract class Validator
         $this->request = $request;
     }
 
-    public abstract function validateBody(): bool|\Psr\Http\Message\ResponseInterface|null;
+    /**
+     * @return \Psr\Http\Message\ResponseInterface|array<string, mixed>
+     */
+    public abstract function validateBody(): \Psr\Http\Message\ResponseInterface|array;
 }

@@ -38,9 +38,9 @@ class UserController
         }
 
         $user = new User();
-        $user->name = $request->getParsedBody()['name'];
-        $user->email = $request->getParsedBody()['email'];
-        $user->setPassword($request->getParsedBody()['password']);
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->setPassword($validated['password']);
         $user->save();
         return new JsonResponse($user, 201);
     }

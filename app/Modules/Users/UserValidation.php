@@ -7,22 +7,39 @@ use Laminas\Diactoros\Response\JsonResponse;
 class UserValidation extends \Src\Validation\Validator
 {
 
-    public function validateBody(): bool|\Psr\Http\Message\ResponseInterface|null
+    /**
+     * @return \Psr\Http\Message\ResponseInterface|array<string, mixed>
+     */
+    public function validateBody(): \Psr\Http\Message\ResponseInterface|array
     {
 
         $body = $this->request->getParsedBody();
 
+        if (empty($body)) {
+            return new JsonResponse([
+                'success' => false
+            ], 422);
+        }
+
+        /** @var array<string, mixed> */
+        $data = is_object($body) ? json_decode(json_encode($body), true) : $body;
+
         $errors = [];
 
         // check required
-        if (empty($body['name'])) $errors['name'][] = "required";
-        if (empty($body['password'])) $errors['password'][] = "required";
+        if (empty($data['name'])) $errors['name'][] = "required";
+        if (empty($data['password'])) $errors['password'][] = "required";
 
-        if (empty($body['email'])) {
+        if (empty($data['email'])) {
             $errors['email'][] = "required";
         } else {
             // check email
-            if (! $this->validEmail($body['email'])) $errors['email'][] = "email";
+            $validatedEmail = $this->validEmail($data['email']);
+            if (! $validatedEmail) {
+                $errors['email'][] = "email";
+            } else {
+                $data['email'] = $validatedEmail;
+            }
         }
 
         if (count($errors)) {
@@ -32,10 +49,10 @@ class UserValidation extends \Src\Validation\Validator
             ], 422);
         }
 
-        return true;
+        return $data;
     }
 
-    public function validEmail(string $email): bool
+    public function validEmail(string $email): mixed
     {
         return filter_var($email, FILTER_VALIDATE_EMAIL);
     }
