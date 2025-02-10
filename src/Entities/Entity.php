@@ -2,18 +2,20 @@
 
 namespace Src\Entities;
 
+use Closure;
 use Src\Facades\EntityManager;
 
 class Entity
 {
 
+    /** @var array<Closure> */
+    protected array $beforeSave;
+
     public function save(): void
     {
 
-        foreach (class_uses($this) as $trait) {
-            if (\Src\Entities\Traits\HasTimestamps::class === $trait && method_exists($this, 'updateTimestampsBeforeSave')) {
-                $this->{'updateTimestampsBeforeSave'}();
-            }
+        foreach ($this->beforeSave as $beforeSaveHook) {
+            $beforeSaveHook();
         }
 
         EntityManager::persist($this);

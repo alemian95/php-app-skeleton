@@ -2,6 +2,7 @@
 
 namespace Src\Entities\Traits;
 
+use Closure;
 use DateTime;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping\Column;
@@ -15,12 +16,14 @@ trait HasTimestamps
     #[Column(name: 'updated_at', type: 'datetime')]
     public DateTimeInterface $updated_at;
 
-    public function updateTimestampsBeforeSave()
+    public function beforeSave(): Closure
     {
-        if (empty($this->created_at)) {
-            $this->created_at = new DateTime();
-        }
-        $this->updated_at = new DateTime();
+        return function () {
+            if (empty($this->created_at)) {
+                $this->created_at = new DateTime();
+            }
+            $this->updated_at = new DateTime();
+        };
     }
 
 }

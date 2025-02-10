@@ -13,7 +13,9 @@ use Src\Entities\Traits\HasTimestamps;
 class User extends Entity
 {
 
-    use HasId, HasTimestamps;
+    use HasId, HasTimestamps {
+        HasTimestamps::beforeSave as timestampsBeforeSave;
+    }
 
     #[Column(name: 'name', type: 'string', length: 255)]
     public string $name;
@@ -23,6 +25,14 @@ class User extends Entity
 
     #[Column(name: 'password', type: 'string', length: 255)]
     private string $password;
+
+    public function __construct()
+    {
+        $this->beforeSave = [
+            $this->timestampsBeforeSave()
+        ];
+    }
+
 
     public function setPassword(string $newPassword): void
     {

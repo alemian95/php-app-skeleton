@@ -8,7 +8,7 @@ trait HasId
 {
 
     #[\Doctrine\ORM\Mapping\Id]
-    #[Column(name: 'id', type: 'integer')]
+    #[Column(name: 'id', type: 'integer', options: [ 'unsigned' => true ])]
     #[\Doctrine\ORM\Mapping\GeneratedValue]
     public int|null $id;
 
