@@ -24,4 +24,14 @@ class UserRepository extends \Src\Entities\Repository
         $this->em->flush();
     }
 
+    public function findByEmail(string $email): User|null
+    {
+        $results = $this->repository->findBy([ 'email' => $email ]);
+        if (count($results)) {
+            return $results[0];
+        } else {
+            return null;
+        }
+    }
+
 }

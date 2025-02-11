@@ -8,6 +8,7 @@ use App\Entities\User;
  * @method static array<User> all()
  * 
  * @method static void save(User $user)
+ * @method static User|null findByEmail(string $email)
  * 
  */
 class UserService extends \Src\Facades\Facade

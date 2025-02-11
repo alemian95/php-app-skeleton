@@ -2,9 +2,10 @@
 
 namespace App\Modules\Users;
 
+use App\Entities\User;
 use Laminas\Diactoros\Response\JsonResponse;
 
-class UserValidation extends \Src\Validation\Validator
+class CreateUserValidation extends \Src\Validation\Validator
 {
 
     /**
@@ -28,7 +29,16 @@ class UserValidation extends \Src\Validation\Validator
 
         // check required
         if (empty($data['name'])) $errors['name'][] = "required";
-        if (empty($data['password'])) $errors['password'][] = "required";
+
+        if (empty($data['password'])) {
+            $errors['password'][] = "required";
+        } else if (empty($data['password_confirmation'])) {
+            $errors['password_confirmation'] = "required";
+        } else {
+            if ($data['password'] !== $data['password_confirmation']) {
+                $errors['password'][] = "confirmed";
+            }
+        }
 
         if (empty($data['email'])) {
             $errors['email'][] = "required";
@@ -39,6 +49,10 @@ class UserValidation extends \Src\Validation\Validator
                 $errors['email'][] = "email";
             } else {
                 $data['email'] = $validatedEmail;
+            }
+
+            if (UserService::findByEmail($data['email']) instanceof User) {
+                $errors['email'][] = "exists";
             }
         }
 

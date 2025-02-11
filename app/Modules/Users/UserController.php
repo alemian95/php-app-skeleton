@@ -31,7 +31,7 @@ class UserController
     public function create(ServerRequestInterface $request): ResponseInterface
     {
 
-        $validated = (new UserValidation($request))->validateBody();
+        $validated = (new CreateUserValidation($request))->validateBody();
 
         if ($validated instanceof \Psr\Http\Message\ResponseInterface) {
             return $validated;
