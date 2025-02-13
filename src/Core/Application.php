@@ -127,6 +127,9 @@ class Application
         $builder = new \DI\ContainerBuilder();
 
         $builder->useAutowiring(true);
+        if (false) { // if production cache container
+            $builder->enableCompilation(dirname(__DIR__, 2) . '/data/cache');
+        }
 
         /** @var \Doctrine\ORM\Configuration */ 
         $config = \Doctrine\ORM\ORMSetup::createAttributeMetadataConfiguration(
@@ -153,9 +156,15 @@ class Application
                 paths: [ $this->srcPath . "/Entities" ],
                 isDevMode: true,
             ),
-            \Doctrine\ORM\EntityManagerInterface::class => function () use ($connection, $config) {
-                return new \Doctrine\ORM\EntityManager($connection, $config);
-            },
+            // \Doctrine\ORM\EntityManagerInterface::class => function () use ($connection, $config) {
+            //     return new \Doctrine\ORM\EntityManager($connection, $config);
+            // },
+            \Doctrine\ORM\EntityManagerInterface::class => \DI\factory(function (\DI\Container $container) {
+                return new \Doctrine\ORM\EntityManager(
+                    $container->get(\Doctrine\DBAL\Connection::class),
+                    $container->get(\Doctrine\DBAL\Configuration::class)
+                );
+            }),
             ...$this->di,
             \Laminas\Stratigility\IterableMiddlewarePipeInterface::class => \Di\create(\Laminas\Stratigility\MiddlewarePipe::class),
         ]);

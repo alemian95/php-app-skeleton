@@ -1,3 +1,6 @@
 vendor
 .env
+var/cache/*
+
 !.env.example
+!.gitkeep
